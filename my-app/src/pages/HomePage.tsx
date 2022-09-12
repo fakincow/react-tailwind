@@ -1,18 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { useDebounce } from '../hooks/debounce';
-import { useSearchUsersQuery } from '../store/github/github.api';
+import { useSearchUsersQuery , useLazyGetUserReposQuery} from '../store/github/github.api';
 
 export function HomePage() {
     const [search, setSearch] = useState('');
     const [dropDown, setDropDown] = useState(false);
     const debounced = useDebounce(search)
     const { isLoading, isError, data: users } = useSearchUsersQuery(debounced, {
-        skip: debounced.length < 3
+        skip: debounced.length < 3,
+        refetchOnFocus: true
     });
-
+    const [fetchRepos, {isLoading:areReposLoading, data:repos}] = useLazyGetUserReposQuery();
+    const onClickHandler = (username:string) =>{
+       fetchRepos(username);
+    }
     useEffect(() => {
             setDropDown(users?.length! > 0);
-    }, [debounced])
+    }, [debounced, users ])
     return (
         <div className='flex justify-center pt-10 mx-auto h-scrren w-screen'> HOME PAGE
             {isError && <p className="text-center text-red-600">Something went wrong</p>}
@@ -27,12 +31,15 @@ export function HomePage() {
                 {isLoading && <p className="text-center"> Loading...</p>}
                 {dropDown && users?.map((user) => {
                     return (
-                        <li key={user.id} className="justify-left text-left py-2 px-4 hover:bg-gray-500 hover:text-white transition-color cursor-pointer">
+                        <li onClick={() => onClickHandler(user.login)} key={user.id} className="justify-left text-left py-2 px-4 hover:bg-gray-500 hover:text-white transition-color cursor-pointer">
                             { user.login }
                         </li>
                     )
                 })}
                 </ul>
+              <div className="container">
+                   { areReposLoading && <p className="text-center">Repos are loading</p>}
+                </div>
             </div>
         </div>
     )
