@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { RepoCard } from '../components/RepoCard';
 import { useDebounce } from '../hooks/debounce';
 import { useSearchUsersQuery , useLazyGetUserReposQuery} from '../store/github/github.api';
 
@@ -13,6 +14,7 @@ export function HomePage() {
     const [fetchRepos, {isLoading:areReposLoading, data:repos}] = useLazyGetUserReposQuery();
     const onClickHandler = (username:string) =>{
        fetchRepos(username);
+       setDropDown(false);
     }
     useEffect(() => {
             setDropDown(users?.length! > 0);
@@ -27,7 +29,7 @@ export function HomePage() {
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                 />
-                <ul className="w-full List-none absolute width: 100% top-[42px] left-0 max-h-[200px] shdow-md overflow-y-scroll" >
+                <ul className="w-full List-none absolute width: 100% top-[42px] left-0 max-h-[200px] shdow-md overflow-y-scroll bg-[#cccccc]" >
                 {isLoading && <p className="text-center"> Loading...</p>}
                 {dropDown && users?.map((user) => {
                     return (
@@ -39,9 +41,9 @@ export function HomePage() {
                 </ul>
               <div className="container">
                    { areReposLoading && <p className="text-center">Repos are loading</p>}
+                   {repos?.map((repo,index) => <RepoCard repo={repo} key={index} />)}
                 </div>
             </div>
         </div>
     )
-
 }
