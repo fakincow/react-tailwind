@@ -1,15 +1,24 @@
-import React from "react";
+import React, { useState } from "react";
 import { useActions } from "../hooks/actions";
+import { useAppSelector } from "../hooks/redux";
 import { IRepo } from "../models/models";
 
 export function RepoCard({ repo }: { repo: IRepo }) {
 
-const {addFavourite} = useActions()
+    const { addFavourite, removeFavourite } = useActions();
+    const { favourites } = useAppSelector(state => state.github);
+    const [isFav, setIsFav] = useState(favourites.includes(repo.html_url));
 
-const addToFavs = (event:React.MouseEvent<HTMLButtonElement>) => {
-event.preventDefault();
-addFavourite(repo.html_url)
-}
+    const removeFromFavourites = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+        addFavourite(repo.html_url);
+        setIsFav(false);
+    }
+    const addToFavs = (event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault();
+        removeFavourite(repo.html_url);
+        setIsFav(true);
+    }
 
     return (
         <div className="border py-3 px-5 rounded mb-2 hover:bg-gray-100 transition-all">
@@ -20,10 +29,16 @@ addFavourite(repo.html_url)
                     Watchers: <span className="font-bold">{repo.watchers}</span>
                 </p>
                 <p className="text-small font-thin">{repo?.description}</p>
-                <button className="py-2 px-4 bg-yellow-400 rounded hover:shadow-md transition-all"
-                onClick={addToFavs}
-                
-                >Add</button>
+                {!isFav &&
+                    <button className="py-2 px-4 bg-yellow-400 rounded hover:shadow-md transition-all"
+                        onClick={addToFavs}
+                    >Add</button>
+                }
+                {isFav &&
+                    <button className="py-2 px-4 mr-2 bg-red-400 rounded hover:shadow-md transition-all"
+                        onClick={removeFromFavourites}
+                    >Remove</button>
+                }
             </a>
         </div>
     )
