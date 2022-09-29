@@ -11,12 +11,13 @@ export function RepoCard({ repo }: { repo: IRepo }) {
 
     const removeFromFavourites = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
-        addFavourite(repo.html_url);
+        removeFavourite(repo.html_url);
         setIsFav(false);
     }
     const addToFavs = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault();
-        removeFavourite(repo.html_url);
+       
+        addFavourite(repo.html_url);
         setIsFav(true);
     }
 
